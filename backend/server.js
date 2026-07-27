@@ -13,7 +13,9 @@ app.use(cors())
 app.use(express.json())
 
 // Servir le frontend (dossier ../frontend)
-app.use(express.static(path.join(__dirname, '..', 'frontend')))
+const frontendPath = path.resolve(__dirname, '..', 'frontend')
+app.use(express.static(frontendPath))
+
 
 // ── Multer : stockage temporaire des photos ────────────
 const upload = multer({
@@ -98,12 +100,17 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-// ── Fallback : renvoyer index.html pour la PWA ─────────
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'))
+// ── Fallback : renvoyer index.html pour la PWA (SPA routing) ─
+app.get('*', (req, res, next) => {
+  // Si la requête demande un fichier avec une extension (ex: .css, .js, .ico), ne pas renvoyer index.html
+  if (req.path.includes('.')) {
+    return res.status(404).send('Fichier introuvable')
+  }
+  res.sendFile(path.join(frontendPath, 'index.html'))
 })
 
 // ── Démarrage ──────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`🦅 Aigle d'Or — Serveur sur http://localhost:${PORT}`)
+  console.log(`📂 Dossier frontend servi depuis : ${frontendPath}`)
 })
