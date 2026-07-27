@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Aigle d'Or — Envoi rapide d'emails avec photos jointes">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Aigle d'Or">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <title>Aigle d'Or — Envoi de versements</title>
+</head>
+<body>
+  <!-- ═══ Header ═══ -->
+  <header class="app-header" id="app-header">
+    <div class="header-glow"></div>
+    <div class="header-content">
+      <div class="logo-group">
+        <div class="logo-icon" id="logo-icon">🦅</div>
+        <div>
+          <h1 class="app-title">Aigle d'Or</h1>
+          <p class="app-subtitle">Envoi de versements</p>
+        </div>
+      </div>
+      <div class="status-indicator" id="status-indicator">
+        <span class="status-dot"></span>
+        <span class="status-text">En ligne</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ Main Content ═══ -->
+  <main class="main-content" id="main-content">
+    <form id="email-form" class="email-form" novalidate>
+
+      <!-- ── Section Photos ── -->
+      <section class="form-section" id="section-photos">
+        <div class="section-header">
+          <span class="section-icon">📸</span>
+          <h2 class="section-title">Photos</h2>
+          <span class="photo-count" id="photo-count">0</span>
+        </div>
+        <div class="photo-zone" id="photo-zone">
+          <div class="photo-grid" id="photo-grid"></div>
+          <label class="add-photo-btn" id="add-photo-btn" for="photo-input">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3"/>
+              <line x1="12" y1="8" x2="12" y2="16"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            <span>Ajouter des photos</span>
+          </label>
+          <input type="file" id="photo-input" accept="image/*" multiple hidden>
+        </div>
+      </section>
+
+      <!-- ── Section Destinataires ── -->
+      <section class="form-section" id="section-emails">
+        <div class="section-header">
+          <span class="section-icon">📧</span>
+          <h2 class="section-title">Destinataire(s)</h2>
+        </div>
+        <div class="email-tags-container" id="email-tags-container">
+          <div class="email-tags" id="email-tags"></div>
+          <input
+            type="email"
+            id="email-input"
+            class="email-input"
+            placeholder="Saisir une adresse email..."
+            autocomplete="email"
+            inputmode="email"
+          >
+        </div>
+        <p class="field-hint">Appuyez sur Entrée ou virgule pour ajouter</p>
+      </section>
+
+      <!-- ── Section Dates ── -->
+      <section class="form-section" id="section-dates">
+        <div class="section-header">
+          <span class="section-icon">📅</span>
+          <h2 class="section-title">Dates de vente</h2>
+        </div>
+        <div class="dates-row">
+          <div class="input-group dates-input-group">
+            <label for="dates-input" class="input-label">Jours</label>
+            <input
+              type="text"
+              id="dates-input"
+              class="form-input"
+              placeholder="Ex : 11, 12, 13"
+              inputmode="text"
+            >
+          </div>
+          <div class="input-group month-input-group">
+            <label for="month-select" class="input-label">Mois</label>
+            <select id="month-select" class="form-input form-select">
+              <option value="01">Janvier</option>
+              <option value="02">Février</option>
+              <option value="03">Mars</option>
+              <option value="04">Avril</option>
+              <option value="05">Mai</option>
+              <option value="06">Juin</option>
+              <option value="07">Juillet</option>
+              <option value="08">Août</option>
+              <option value="09">Septembre</option>
+              <option value="10">Octobre</option>
+              <option value="11">Novembre</option>
+              <option value="12">Décembre</option>
+            </select>
+          </div>
+          <div class="input-group year-input-group">
+            <label for="year-input" class="input-label">Année</label>
+            <input
+              type="number"
+              id="year-input"
+              class="form-input"
+              min="2024"
+              max="2030"
+              inputmode="numeric"
+            >
+          </div>
+        </div>
+        <p class="dates-preview" id="dates-preview"></p>
+      </section>
+
+      <!-- ── Section Message ── -->
+      <section class="form-section" id="section-message">
+        <div class="section-header">
+          <span class="section-icon">✉️</span>
+          <h2 class="section-title">Message</h2>
+        </div>
+        <div class="input-group">
+          <label for="subject-input" class="input-label">Objet</label>
+          <input
+            type="text"
+            id="subject-input"
+            class="form-input"
+            placeholder="Objet de l'email..."
+          >
+        </div>
+        <div class="input-group">
+          <label for="body-input" class="input-label">Corps du message</label>
+          <textarea
+            id="body-input"
+            class="form-input form-textarea"
+            rows="5"
+            placeholder="Contenu de l'email..."
+          ></textarea>
+        </div>
+      </section>
+
+      <!-- ── Bouton Envoyer ── -->
+      <button type="submit" class="send-btn" id="send-btn">
+        <span class="send-btn-content">
+          <svg class="send-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+          <span>Envoyer l'email</span>
+        </span>
+        <span class="send-btn-loading">
+          <span class="spinner"></span>
+          <span>Envoi en cours...</span>
+        </span>
+      </button>
+    </form>
+  </main>
+
+  <!-- ═══ Toast Notification ═══ -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- ═══ Overlay succès ═══ -->
+  <div class="success-overlay" id="success-overlay">
+    <div class="success-card">
+      <div class="success-check">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <h2>Email envoyé ! ✨</h2>
+      <p id="success-message">Votre email a été envoyé avec succès.</p>
+      <button class="success-close-btn" id="success-close-btn">Nouveau message</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

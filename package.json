@@ -1,0 +1,14 @@
+{
+  "name": "aigle-dor",
+  "version": "1.0.0",
+  "description": "PWA Aigle d'Or — Envoi de rapports et photos par email",
+  "main": "backend/server.js",
+  "scripts": {
+    "postinstall": "cd backend && npm install",
+    "start": "node backend/server.js",
+    "dev": "cd backend && npm run dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
