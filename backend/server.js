@@ -30,6 +30,11 @@ const upload = multer({
   }
 })
 
+const dns = require('dns')
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first')
+}
+
 // ── Configuration Nodemailer ───────────────────────────
 const smtpPort = Number(process.env.SMTP_PORT) || 465
 const isSecure = smtpPort === 465 || process.env.SMTP_SECURE === 'true'
@@ -38,12 +43,16 @@ const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: smtpPort,
   secure: isSecure, // true pour le port 465 (SSL), false pour 587 (STARTTLS)
+  family: 4, // Forcer IPv4 (évite les timeouts IPv6 sur Render/Docker)
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 15000,
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS
   },
   tls: {
-    rejectUnauthorized: false // Nécessaire si antivirus/proxy intercepte le TLS
+    rejectUnauthorized: false
   }
 })
 
