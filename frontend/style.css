@@ -482,6 +482,61 @@ body::after {
 }
 
 /* ── Dates Row ────────────────────────────────────────── */
+.dates-rows-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.date-row-item {
+  position: relative;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  transition: all var(--duration-fast);
+  animation: dateRowIn var(--duration-normal) var(--ease-spring);
+}
+
+@keyframes dateRowIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.date-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xs);
+}
+
+.date-row-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.remove-date-btn {
+  border: none;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background var(--duration-fast);
+}
+
+.remove-date-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
 .dates-row {
   display: grid;
   grid-template-columns: 1fr 1fr 0.7fr;
@@ -494,14 +549,34 @@ body::after {
   }
 }
 
+.add-date-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: 10px 16px;
+  background: transparent;
+  border: 1px dashed var(--border-gold);
+  border-radius: var(--radius-md);
+  color: var(--gold-300);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: var(--space-md);
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.add-date-btn:hover {
+  background: rgba(250, 204, 21, 0.08);
+  border-color: var(--gold-400);
+  color: var(--gold-400);
+}
+
 .input-group {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  margin-bottom: var(--space-md);
-}
-
-.input-group:last-child {
   margin-bottom: 0;
 }
 
@@ -558,7 +633,7 @@ body::after {
 }
 
 .dates-preview {
-  margin-top: var(--space-sm);
+  margin-top: var(--space-md);
   font-size: 0.8rem;
   color: var(--gold-400);
   font-weight: 500;

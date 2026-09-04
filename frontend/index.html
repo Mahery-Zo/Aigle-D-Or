@@ -86,46 +86,16 @@
           <span class="section-icon">📅</span>
           <h2 class="section-title">Dates de vente</h2>
         </div>
-        <div class="dates-row">
-          <div class="input-group dates-input-group">
-            <label for="dates-input" class="input-label">Jours</label>
-            <input
-              type="text"
-              id="dates-input"
-              class="form-input"
-              placeholder="Ex : 11, 12, 13"
-              inputmode="text"
-            >
-          </div>
-          <div class="input-group month-input-group">
-            <label for="month-select" class="input-label">Mois</label>
-            <select id="month-select" class="form-input form-select">
-              <option value="01">Janvier</option>
-              <option value="02">Février</option>
-              <option value="03">Mars</option>
-              <option value="04">Avril</option>
-              <option value="05">Mai</option>
-              <option value="06">Juin</option>
-              <option value="07">Juillet</option>
-              <option value="08">Août</option>
-              <option value="09">Septembre</option>
-              <option value="10">Octobre</option>
-              <option value="11">Novembre</option>
-              <option value="12">Décembre</option>
-            </select>
-          </div>
-          <div class="input-group year-input-group">
-            <label for="year-input" class="input-label">Année</label>
-            <input
-              type="number"
-              id="year-input"
-              class="form-input"
-              min="2024"
-              max="2030"
-              inputmode="numeric"
-            >
-          </div>
+        <div class="dates-rows-container" id="dates-rows-container">
+          <!-- Les lignes de dates sont générées dynamiquement par JavaScript -->
         </div>
+        <button type="button" class="add-date-btn" id="add-date-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span>Ajouter une autre date / période</span>
+        </button>
         <p class="dates-preview" id="dates-preview"></p>
       </section>
 

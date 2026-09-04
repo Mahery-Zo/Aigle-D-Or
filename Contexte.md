@@ -23,7 +23,7 @@ Le projet suit une architecture **client-serveur** composée de deux parties :
 - **Fonctionnalités frontend** :
   - Ajout et prévisualisation de photos (avec suppression individuelle)
   - Saisie de destinataires multiples sous forme de tags (avec validation)
-  - Sélection de dates de vente (jours, mois, année) avec génération automatique de l'objet et du corps de l'email
+  - Sélection de dates/périodes de vente multiples (jours, mois, année avec possibilité d'ajouter plusieurs périodes différentes) avec génération automatique combinée de l'objet et du corps de l'email
   - Envoi du formulaire avec indicateur de chargement
   - Notifications toast (succès, erreur, info)
   - Overlay de confirmation après envoi réussi
@@ -51,10 +51,10 @@ Le projet suit une architecture **client-serveur** composée de deux parties :
 1. L'utilisateur ouvre l'application (installable en tant que PWA sur mobile)
 2. Il ajoute des **photos** (reçus de versement, justificatifs)
 3. Il saisit un ou plusieurs **destinataires** (adresses email)
-4. Il renseigne les **dates de vente** (jours, mois, année)
+4. Il renseigne une ou plusieurs **dates / périodes de vente** (via le bouton "+ Ajouter une autre date / période" si besoin sur plusieurs mois/années)
 5. L'objet et le corps de l'email sont **générés automatiquement** au format :
-   - Objet : `Versement des ventes du 11, 12, 13 / 07 / 2026`
-   - Corps : `Bonjour, Voici les versements des ventes du 11, 12, 13 juillet 2026. Cordialement`
+   - Objet : `Versement des ventes du 31 / 08 / 2026 et du 01, 02 / 09 / 2026`
+   - Corps : `Bonjour, Voici les versements des ventes du 31 août 2026 et du 1, 2 septembre 2026. Cordialement`
 6. L'utilisateur peut modifier le message manuellement si nécessaire
 7. Il clique sur **Envoyer** → le formulaire est validé côté client puis envoyé au backend
 8. Le backend transmet l'email avec les photos en pièces jointes via Gmail SMTP

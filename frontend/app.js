@@ -9,6 +9,7 @@
   const state = {
     photos: [],       // Array of { file: File, id: string, previewUrl: string }
     emails: [],       // Array of email strings
+    dateRows: [],     // Array of { id: string, days: string, month: string, year: string }
     sending: false
   }
 
@@ -17,26 +18,25 @@
   const $$ = (sel) => document.querySelectorAll(sel)
 
   const dom = {
-    form:           $('#email-form'),
-    photoInput:     $('#photo-input'),
-    photoGrid:      $('#photo-grid'),
-    photoCount:     $('#photo-count'),
-    addPhotoBtn:    $('#add-photo-btn'),
-    emailInput:     $('#email-input'),
-    emailTags:      $('#email-tags'),
-    emailContainer: $('#email-tags-container'),
-    datesInput:     $('#dates-input'),
-    monthSelect:    $('#month-select'),
-    yearInput:      $('#year-input'),
-    datesPreview:   $('#dates-preview'),
-    subjectInput:   $('#subject-input'),
-    bodyInput:      $('#body-input'),
-    sendBtn:        $('#send-btn'),
-    toastContainer: $('#toast-container'),
-    successOverlay: $('#success-overlay'),
-    successMessage: $('#success-message'),
-    successCloseBtn:$('#success-close-btn'),
-    statusIndicator:$('#status-indicator')
+    form:               $('#email-form'),
+    photoInput:         $('#photo-input'),
+    photoGrid:          $('#photo-grid'),
+    photoCount:         $('#photo-count'),
+    addPhotoBtn:        $('#add-photo-btn'),
+    emailInput:         $('#email-input'),
+    emailTags:          $('#email-tags'),
+    emailContainer:     $('#email-tags-container'),
+    datesRowsContainer: $('#dates-rows-container'),
+    addDateBtn:         $('#add-date-btn'),
+    datesPreview:       $('#dates-preview'),
+    subjectInput:       $('#subject-input'),
+    bodyInput:          $('#body-input'),
+    sendBtn:            $('#send-btn'),
+    toastContainer:     $('#toast-container'),
+    successOverlay:     $('#success-overlay'),
+    successMessage:     $('#success-message'),
+    successCloseBtn:    $('#success-close-btn'),
+    statusIndicator:    $('#status-indicator')
   }
 
   // ── Months in French ─────────────────────────────────
@@ -55,11 +55,13 @@
   function setDefaultValues() {
     const now = new Date()
     const currentMonth = String(now.getMonth() + 1).padStart(2, '0')
-    const currentYear = now.getFullYear()
+    const currentYear = String(now.getFullYear())
 
-    dom.monthSelect.value = currentMonth
-    dom.yearInput.value = currentYear
+    state.dateRows = [
+      { id: generateId(), days: '', month: currentMonth, year: currentYear }
+    ]
 
+    renderDateRows()
     updateDatesPreview()
     updateSubjectAndBody()
   }
@@ -81,19 +83,8 @@
     dom.emailInput.addEventListener('blur', handleEmailBlur)
     dom.emailInput.addEventListener('paste', handleEmailPaste)
 
-    // Dates → auto-update subject/body
-    dom.datesInput.addEventListener('input', () => {
-      updateDatesPreview()
-      updateSubjectAndBody()
-    })
-    dom.monthSelect.addEventListener('change', () => {
-      updateDatesPreview()
-      updateSubjectAndBody()
-    })
-    dom.yearInput.addEventListener('input', () => {
-      updateDatesPreview()
-      updateSubjectAndBody()
-    })
+    // Dates
+    dom.addDateBtn.addEventListener('click', addDateRow)
 
     // Form submit
     dom.form.addEventListener('submit', handleSubmit)
@@ -227,45 +218,183 @@
     })
   }
 
-  // ── Dates Preview & Auto-fill ────────────────────────
-  function getDatesString() {
-    const days = dom.datesInput.value.trim()
-    const monthNum = parseInt(dom.monthSelect.value)
-    const year = dom.yearInput.value.trim()
+  // ── Date Rows Handling ───────────────────────────────
+  function renderDateRows() {
+    dom.datesRowsContainer.innerHTML = ''
 
-    if (!days) return ''
+    state.dateRows.forEach((row, index) => {
+      const rowItem = document.createElement('div')
+      rowItem.className = 'date-row-item'
+      rowItem.dataset.id = row.id
 
-    const monthName = MONTHS_FR[monthNum] || ''
+      const showRemove = state.dateRows.length > 1
 
-    // Clean up days: "11, 12, 13" → "11, 12, 13"
-    const cleanDays = days.replace(/\s+/g, ' ').trim()
+      rowItem.innerHTML = `
+        <div class="date-row-header">
+          <span class="date-row-title">${state.dateRows.length > 1 ? `Période ${index + 1}` : 'Période de vente'}</span>
+          ${showRemove ? `<button type="button" class="remove-date-btn" data-id="${row.id}" aria-label="Supprimer cette période">✕ Supprimer</button>` : ''}
+        </div>
+        <div class="dates-row">
+          <div class="input-group dates-input-group">
+            <label class="input-label">Jours</label>
+            <input
+              type="text"
+              class="form-input date-days-input"
+              data-id="${row.id}"
+              placeholder="Ex : 11, 12, 13"
+              value="${escapeHtml(row.days)}"
+              inputmode="text"
+            >
+          </div>
+          <div class="input-group month-input-group">
+            <label class="input-label">Mois</label>
+            <select class="form-input form-select date-month-select" data-id="${row.id}">
+              ${MONTHS_FR.slice(1).map((m, idx) => {
+                const val = String(idx + 1).padStart(2, '0')
+                return `<option value="${val}" ${row.month === val ? 'selected' : ''}>${m.charAt(0).toUpperCase() + m.slice(1)}</option>`
+              }).join('')}
+            </select>
+          </div>
+          <div class="input-group year-input-group">
+            <label class="input-label">Année</label>
+            <input
+              type="number"
+              class="form-input date-year-input"
+              data-id="${row.id}"
+              min="2024"
+              max="2030"
+              value="${escapeHtml(row.year)}"
+              inputmode="numeric"
+            >
+          </div>
+        </div>
+      `
 
-    return `${cleanDays} / ${String(monthNum).padStart(2,'0')} / ${year}`
+      dom.datesRowsContainer.appendChild(rowItem)
+    })
+
+    // Écouteurs d'événements sur les inputs de chaque ligne
+    dom.datesRowsContainer.querySelectorAll('.date-days-input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const row = state.dateRows.find(r => r.id === e.target.dataset.id)
+        if (row) {
+          row.days = e.target.value
+          updateDatesPreview()
+          updateSubjectAndBody()
+        }
+      })
+    })
+
+    dom.datesRowsContainer.querySelectorAll('.date-month-select').forEach(select => {
+      select.addEventListener('change', (e) => {
+        const row = state.dateRows.find(r => r.id === e.target.dataset.id)
+        if (row) {
+          row.month = e.target.value
+          updateDatesPreview()
+          updateSubjectAndBody()
+        }
+      })
+    })
+
+    dom.datesRowsContainer.querySelectorAll('.date-year-input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const row = state.dateRows.find(r => r.id === e.target.dataset.id)
+        if (row) {
+          row.year = e.target.value
+          updateDatesPreview()
+          updateSubjectAndBody()
+        }
+      })
+    })
+
+    dom.datesRowsContainer.querySelectorAll('.remove-date-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        removeDateRow(btn.dataset.id)
+      })
+    })
   }
 
-  function getDatesStringFull() {
-    const days = dom.datesInput.value.trim()
-    const monthNum = parseInt(dom.monthSelect.value)
-    const year = dom.yearInput.value.trim()
+  function addDateRow() {
+    const lastRow = state.dateRows[state.dateRows.length - 1]
+    const defaultMonth = lastRow ? lastRow.month : String(new Date().getMonth() + 1).padStart(2, '0')
+    const defaultYear = lastRow ? lastRow.year : String(new Date().getFullYear())
 
-    if (!days) return ''
+    state.dateRows.push({
+      id: generateId(),
+      days: '',
+      month: defaultMonth,
+      year: defaultYear
+    })
 
-    const monthName = MONTHS_FR[monthNum] || ''
-    return `${days} ${monthName} ${year}`
+    renderDateRows()
+    updateDatesPreview()
+    updateSubjectAndBody()
+
+    // Placer le focus sur le champ jours de la nouvelle ligne
+    const newInputs = dom.datesRowsContainer.querySelectorAll('.date-days-input')
+    if (newInputs.length) {
+      newInputs[newInputs.length - 1].focus()
+    }
+  }
+
+  function removeDateRow(id) {
+    if (state.dateRows.length <= 1) return
+    state.dateRows = state.dateRows.filter(r => r.id !== id)
+    renderDateRows()
+    updateDatesPreview()
+    updateSubjectAndBody()
+  }
+
+  // ── Formateurs de dates multiples ────────────────────
+  function getValidDateRows() {
+    return state.dateRows.filter(r => r.days && r.days.trim().length > 0)
+  }
+
+  function formatListWithEt(items, prefix = 'du ') {
+    if (!items.length) return ''
+    if (items.length === 1) return prefix + items[0]
+    if (items.length === 2) return `${prefix}${items[0]} et ${prefix}${items[1]}`
+    const head = items.slice(0, -1).map(item => prefix + item).join(', ')
+    const tail = prefix + items[items.length - 1]
+    return `${head} et ${tail}`
+  }
+
+  function getShortDatesStrings() {
+    return getValidDateRows().map(r => {
+      const cleanDays = r.days.trim().replace(/\s+/g, ' ')
+      return `${cleanDays} / ${r.month} / ${r.year}`
+    })
+  }
+
+  function getFullDatesStrings() {
+    return getValidDateRows().map(r => {
+      const cleanDays = r.days.trim().replace(/\s+/g, ' ')
+      const monthNum = parseInt(r.month)
+      const monthName = MONTHS_FR[monthNum] || ''
+      return `${cleanDays} ${monthName} ${r.year}`
+    })
   }
 
   function updateDatesPreview() {
-    const preview = getDatesStringFull()
-    dom.datesPreview.textContent = preview ? `📌 ${preview}` : ''
+    const fulls = getFullDatesStrings()
+    if (fulls.length) {
+      const previewText = fulls.join(' | ')
+      dom.datesPreview.textContent = `📌 ${previewText}`
+    } else {
+      dom.datesPreview.textContent = ''
+    }
   }
 
   function updateSubjectAndBody() {
-    const dateStr = getDatesString()
-    const dateStrFull = getDatesStringFull()
+    const shorts = getShortDatesStrings()
+    const fulls = getFullDatesStrings()
 
-    if (dateStr) {
-      dom.subjectInput.value = `Versement des ventes du ${dateStr}`
-      dom.bodyInput.value = `Bonjour,\n\nVoici les versements des ventes du ${dateStrFull}.\n\nCordialement`
+    if (shorts.length) {
+      const subjectFormatted = formatListWithEt(shorts, 'du ')
+      const bodyFormatted = formatListWithEt(fulls, 'du ')
+
+      dom.subjectInput.value = `Versement des ventes ${subjectFormatted}`
+      dom.bodyInput.value = `Bonjour,\n\nVoici les versements des ventes ${bodyFormatted}.\n\nCordialement`
     } else {
       dom.subjectInput.value = ''
       dom.bodyInput.value = ''
@@ -295,6 +424,12 @@
         dom.emailInput.focus()
         return
       }
+    }
+
+    if (!getValidDateRows().length) {
+      showToast('Renseignez au moins une date de vente', 'error')
+      shakeSection('section-dates')
+      return
     }
 
     if (!dom.subjectInput.value.trim()) {
@@ -367,8 +502,7 @@
     state.emails = []
     renderEmails()
 
-    // Reset dates to current
-    dom.datesInput.value = ''
+    // Reset dates to single current month row
     setDefaultValues()
 
     // Scroll to top
