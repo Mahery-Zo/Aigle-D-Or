@@ -31,10 +31,13 @@ const upload = multer({
 })
 
 // ── Configuration Nodemailer ───────────────────────────
+const smtpPort = Number(process.env.SMTP_PORT) || 465
+const isSecure = smtpPort === 465 || process.env.SMTP_SECURE === 'true'
+
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: false, // true pour le port 465
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: smtpPort,
+  secure: isSecure, // true pour le port 465 (SSL), false pour 587 (STARTTLS)
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS
