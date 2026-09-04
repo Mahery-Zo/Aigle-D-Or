@@ -122,7 +122,11 @@ app.get('*', (req, res, next) => {
 })
 
 // ── Démarrage ──────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`🦅 Aigle d'Or — Serveur sur http://localhost:${PORT}`)
-  console.log(`📂 Dossier frontend servi depuis : ${frontendPath}`)
-})
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🦅 Aigle d'Or — Serveur sur http://localhost:${PORT}`)
+    console.log(`📂 Dossier frontend servi depuis : ${frontendPath}`)
+  })
+}
+
+module.exports = app
